@@ -17,7 +17,7 @@ jobs:
           echo "Preparing project structure for JoiPlay..."
           mkdir -p Data Graphics/Tilesets Graphics/Characters Scripts Audio
           
-          # Garante que o arquivo de inicialização do RPG Maker (Game.ini) exista para o JoiPlay reconhecer
+          # Criar o Game.ini essencial para o JoiPlay reconhecer o projeto
           cat << 'EOF' > Game.ini
           [Game]
           Library=RGSS104E.dll
@@ -26,6 +26,28 @@ jobs:
           RTP1=
           RTP2=
           RTP3=
+          EOF
+
+          # Inserir os scripts e lógica de Pallet Town
+          cat << 'EOF' > Data/Scripts_PalletTown.rb
+          # Pallet Town Initial Setup - v0.01
+          def pbPalletTownSign
+            Kernel.pbMessage(_INTL("Pallet Town\nShades of your journey await!"))
+          end
+
+          def pbRoute1Blocker
+            Kernel.pbMessage(_INTL("Tall grass ahead! It's unsafe to go out without a Pokémon."))
+          end
+          EOF
+
+          # Inserir a configuração dos botões touch estilo GBA
+          cat << 'EOF' > Scripts/TouchControlsGBA.rb
+          class GBAVirtualPad
+            def initialize
+              # Layout GBA: D-Pad, A, B, L, R, Select, Start
+              @layout = :gba_standard
+            end
+          end
           EOF
 
           echo "Packaging project into a clean ZIP for JoiPlay..."
