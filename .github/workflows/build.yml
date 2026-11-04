@@ -12,47 +12,28 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Environment & Package for JoiPlay (No Audio)
+      - name: Download and Setup Essentials Base
         run: |
-          echo "Preparing lightweight project structure for JoiPlay..."
-          mkdir -p Data Graphics/Tilesets Graphics/Characters Scripts
+          echo "Descarregando a base do Pokémon Essentials..."
+          curl -L -o base.zip https://github.com/vApathy/Essentials-Mobile-Base/archive/refs/heads/main.zip
           
-          # Criar o Game.ini configurado para o JoiPlay (sem RTP e sem dependência de áudio)
+          echo "Extraindo a base do jogo..."
+          unzip -q base.zip
+          cp -r Essentials-Mobile-Base-main/* .
+          rm -rf Essentials-Mobile-Base-main base.zip
+
+          echo "Garantindo ficheiro Game.ini para o JoiPlay..."
           cat << 'EOF' > Game.ini
           [Game]
           Library=RGSS104E.dll
           Scripts=Data/Scripts.rxdata
-          Title=Pokemon Mobile v0.01
+          Title=Pokemon Mobile v0.01 - Pallet Playable
           RTP1=
           RTP2=
           RTP3=
           EOF
 
-          # Criar o arquivo de scripts base do motor
-          echo "Pokémon Essentials v0.01 Mobile" > Data/Scripts.rxdata
-
-          # Inserir os scripts lógicos de Pallet Town (placa e bloqueio da Rota 1)
-          cat << 'EOF' > Data/Scripts_PalletTown.rb
-          # Pallet Town Initial Setup - v0.01
-          def pbPalletTownSign
-            Kernel.pbMessage(_INTL("Pallet Town\nShades of your journey await!"))
-          end
-
-          def pbRoute1Blocker
-            Kernel.pbMessage(_INTL("Tall grass ahead! It's unsafe to go out without a Pokémon."))
-          end
-          EOF
-
-          # Inserir o layout dos botões touch estilo GBA
-          cat << 'EOF' > Scripts/TouchControlsGBA.rb
-          class GBAVirtualPad
-            def initialize
-              @layout = :gba_standard
-            end
-          end
-          EOF
-
-          echo "Packaging project (Audio omitted)..."
+          echo "Empacotando projeto completo para o JoiPlay..."
           zip -r pokemon-joiplay-v0.01.zip Data Graphics Scripts Game.ini README.md
 
       - name: Upload JoiPlay Artifact
