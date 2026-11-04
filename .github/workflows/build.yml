@@ -15,12 +15,12 @@ jobs:
       - name: Download and Setup Essentials Base
         run: |
           echo "Descarregando a base do Pokémon Essentials..."
-          curl -L -o base.zip https://github.com/vApathy/Essentials-Mobile-Base/archive/refs/heads/main.zip
+          curl -L -o base.zip https://github.com/vApathy/Essentials-Mobile-Base/archive/refs/heads/master.zip
           
           echo "Extraindo a base do jogo..."
           unzip -q base.zip
-          cp -r Essentials-Mobile-Base-main/* .
-          rm -rf Essentials-Mobile-Base-main base.zip
+          cp -r Essentials-Mobile-Base-master/* .
+          rm -rf Essentials-Mobile-Base-master base.zip
 
           echo "Garantindo ficheiro Game.ini para o JoiPlay..."
           cat << 'EOF' > Game.ini
