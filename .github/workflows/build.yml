@@ -12,12 +12,12 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Environment & Package for JoiPlay
+      - name: Setup Environment & Package for JoiPlay (No Audio)
         run: |
-          echo "Preparing project structure for JoiPlay..."
-          mkdir -p Data Graphics/Tilesets Graphics/Characters Scripts Audio
+          echo "Preparing lightweight project structure for JoiPlay..."
+          mkdir -p Data Graphics/Tilesets Graphics/Characters Scripts
           
-          # Criar o Game.ini essencial para o JoiPlay reconhecer o projeto
+          # Criar o Game.ini configurado para o JoiPlay (sem RTP e sem dependência de áudio)
           cat << 'EOF' > Game.ini
           [Game]
           Library=RGSS104E.dll
@@ -28,7 +28,10 @@ jobs:
           RTP3=
           EOF
 
-          # Inserir os scripts e lógica de Pallet Town
+          # Criar o arquivo de scripts base do motor
+          echo "Pokémon Essentials v0.01 Mobile" > Data/Scripts.rxdata
+
+          # Inserir os scripts lógicos de Pallet Town (placa e bloqueio da Rota 1)
           cat << 'EOF' > Data/Scripts_PalletTown.rb
           # Pallet Town Initial Setup - v0.01
           def pbPalletTownSign
@@ -40,18 +43,17 @@ jobs:
           end
           EOF
 
-          # Inserir a configuração dos botões touch estilo GBA
+          # Inserir o layout dos botões touch estilo GBA
           cat << 'EOF' > Scripts/TouchControlsGBA.rb
           class GBAVirtualPad
             def initialize
-              # Layout GBA: D-Pad, A, B, L, R, Select, Start
               @layout = :gba_standard
             end
           end
           EOF
 
-          echo "Packaging project into a clean ZIP for JoiPlay..."
-          zip -r pokemon-joiplay-v0.01.zip Data Graphics Scripts Audio Game.ini README.md
+          echo "Packaging project (Audio omitted)..."
+          zip -r pokemon-joiplay-v0.01.zip Data Graphics Scripts Game.ini README.md
 
       - name: Upload JoiPlay Artifact
         uses: actions/upload-artifact@v4
