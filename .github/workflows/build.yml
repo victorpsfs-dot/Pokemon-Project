@@ -1,4 +1,4 @@
-name: Build Pokémon Mobile APK
+name: Build Pokémon JoiPlay Package
 
 on:
   push:
@@ -12,20 +12,27 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Environment & Package APK
+      - name: Setup Environment & Package for JoiPlay
         run: |
-          echo "Preparing folders for Android execution..."
-          mkdir -p Data Graphics/Tilesets Graphics/Characters Scripts build_output
+          echo "Preparing project structure for JoiPlay..."
+          mkdir -p Data Graphics/Tilesets Graphics/Characters Scripts Audio
           
-          # Simula a estrutura executável do motor para Android
-          echo "Creating mock APK installer package for v0.01..."
-          echo "Pokemon Essentials Mobile v0.01 - Pallet Town" > build_output/README_GAME.txt
-          
-          # Cria um arquivo simulando o APK compilado para teste imediato
-          zip -r pokemon-v0.01-test.apk Data Graphics Scripts build_output/README_GAME.txt
+          # Garante que o arquivo de inicialização do RPG Maker (Game.ini) exista para o JoiPlay reconhecer
+          cat << 'EOF' > Game.ini
+          [Game]
+          Library=RGSS104E.dll
+          Scripts=Data/Scripts.rxdata
+          Title=Pokemon Mobile v0.01
+          RTP1=
+          RTP2=
+          RTP3=
+          EOF
 
-      - name: Upload APK Artifact
+          echo "Packaging project into a clean ZIP for JoiPlay..."
+          zip -r pokemon-joiplay-v0.01.zip Data Graphics Scripts Audio Game.ini README.md
+
+      - name: Upload JoiPlay Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: pokemon-v0.01-apk
-          path: pokemon-v0.01-test.apk
+          name: pokemon-joiplay-v0.01
+          path: pokemon-joiplay-v0.01.zip
