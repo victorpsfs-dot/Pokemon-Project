@@ -12,66 +12,23 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Full JoiPlay Engine Structure
+      - name: Clone Real Essentials Base Repository
         run: |
-          echo "Criando árvore de diretórios do RPG Maker XP / Essentials..."
-          mkdir -p Data Graphics/Tilesets Graphics/Characters Graphics/Transitions Scripts Maps
+          echo "Clonando base oficial de dados binários..."
+          git clone --depth 1 https://github.com/EnricoPicci/Pokemon-Essentials-Mobile.git temp_base
           
-          # Criar o Game.ini essencial para o JoiPlay reconhecer a inicialização
-          cat << 'EOF' > Game.ini
-          [Game]
-          Library=RGSS104E.dll
-          Scripts=Data/Scripts.rxdata
-          Title=Pokemon Mobile v0.01 - Pallet Playable
-          RTP1=
-          RTP2=
-          RTP3=
-          EOF
-
-          # Criar dados binários estruturados simulados para o motor aceitar a leitura
-          printf "\x00\x00\x00\x07RPGXP" > Data/Scripts.rxdata
-          printf "\x00\x00\x00\x07RPGXP" > Data/Map001.rxdata
-          printf "\x00\x00\x00\x07RPGXP" > Data/MapInfos.rxdata
-          printf "\x00\x00\x00\x07RPGXP" > Data/System.rxdata
-
-          # Inserir scripts lógicos de Pallet Town e interações
-          cat << 'EOF' > Data/Scripts_PalletTown.rb
-          # Pallet Town Playable Logic - v0.01
-          def pbPalletTownSign
-            Kernel.pbMessage(_INTL("Pallet Town\nShades of your journey await!"))
-          end
-
-          def pbEnterPlayerHouse
-            Kernel.pbMessage(_INTL("You entered your room. Mom's cooking smells delicious!"))
-          end
-
-          def pbEnterLabs
-            Kernel.pbMessage(_INTL("Professor Oak's Research Lab. Keep out unless you're starting your journey!"))
-          end
-
-          def pbRoute1Blocker
-            Kernel.pbMessage(_INTL("Tall grass ahead! It's unsafe to go out without a Pokémon."))
-          end
-          EOF
-
-          # Configurar controlos GBA Touch para o JoiPlay
-          cat << 'EOF' > Scripts/TouchControlsGBA.rb
-          class GBAVirtualPad
-            def initialize
-              @layout = :gba_standard
-              @buttons = [:dpad, :a, :b, :l, :r, :select, :start]
-            end
-          end
-          EOF
-
-          # Adicionar placeholders gráficos válidos
-          echo "Tile" > Graphics/Tilesets/001-Tile.png
-          echo "Player" > Graphics/Characters/player.png
-
-          echo "Compactando pacote final para JoiPlay..."
-          zip -r pokemon-joiplay-v0.01.zip Data Graphics Maps Scripts Game.ini README.md
+          # Copiar a pasta Data real e Game.ini para a raiz do projeto
+          cp -r temp_base/Data .
+          cp -r temp_base/Graphics . || mkdir -p Graphics
+          cp temp_base/Game.ini . || echo -e "[Game]\nLibrary=RGSS104E.dll\nScripts=Data/Scripts.rxdata\nTitle=Pokemon Playable" > Game.ini
           
-          echo "Build finalizado com sucesso!"
+          rm -rf temp_base
+
+          echo "Verificando tamanho dos dados gerados..."
+          du -sh Data/
+
+          echo "Compactando pacote jogável..."
+          zip -r pokemon-joiplay-v0.01.zip Data Graphics Game.ini README.md
 
       - name: Upload JoiPlay Artifact
         uses: actions/upload-artifact@v4
