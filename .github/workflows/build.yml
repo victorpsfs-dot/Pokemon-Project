@@ -12,58 +12,20 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Environment & Inject v0.01 Content + GBA Touch Controls
+      - name: Setup Environment & Package APK
         run: |
-          echo "Setting up project folders..."
-          mkdir -p Data Graphics/Tilesets Graphics/Characters Scripts
+          echo "Preparing folders for Android execution..."
+          mkdir -p Data Graphics/Tilesets Graphics/Characters Scripts build_output
           
-          # Criando a estrutura de dados e eventos de Pallet Town (em inglês)
-          echo "Writing Pallet Town (v0.01) scripts and map data..."
-          cat << 'EOF' > Data/Scripts_PalletTown.rb
-          # Pallet Town Initial Setup - v0.01
-          def pbPalletTownSign
-            Kernel.pbMessage(_INTL("Pallet Town\nShades of your journey await!"))
-          end
+          # Simula a estrutura executável do motor para Android
+          echo "Creating mock APK installer package for v0.01..."
+          echo "Pokemon Essentials Mobile v0.01 - Pallet Town" > build_output/README_GAME.txt
+          
+          # Cria um arquivo simulando o APK compilado para teste imediato
+          zip -r pokemon-v0.01-test.apk Data Graphics Scripts build_output/README_GAME.txt
 
-          def pbRoute1Blocker
-            Kernel.pbMessage(_INTL("Tall grass ahead! It's unsafe to go out without a Pokémon from Professor Oak's Lab."))
-            $game_player.move_lower_straight
-          end
-
-          def pbPalletTownNPC
-            Kernel.pbMessage(_INTL("I'm testing the v0.01 mobile build with GBA touch controls!"))
-          end
-          EOF
-
-          # Criando o Layout de Controles Touch estilo GBA (D-Pad, A, B, L, R, Select, Start)
-          cat << 'EOF' > Scripts/TouchControlsGBA.rb
-          class GBAVirtualPad
-            def initialize(viewport)
-              @viewport = viewport
-              # Layout GBA: D-Pad (Esq), A/B (Dir), L/R (Topo), Select/Start (Baixo)
-              @controls = {
-                dpad: { x: 40, y: 300, w: 120, h: 120 },
-                btn_b: { x: 340, y: 330, w: 55, h: 55 },
-                btn_a: { x: 420, y: 310, w: 55, h: 55 },
-                btn_l: { x: 50, y: 180, w: 60, h: 35 },
-                btn_r: { x: 410, y: 180, w: 60, h: 35 },
-                select: { x: 180, y: 410, w: 50, h: 25 },
-                start: { x: 260, y: 410, w: 50, h: 25 }
-              }
-            end
-          end
-          EOF
-
-          echo "v0.01 Assets and GBA Touch Layout injected successfully!"
-
-      - name: Package Release
-        run: |
-          zip -r pokemon-v0.01-gba-mobile.zip .
-          mkdir -p release_output
-          mv pokemon-v0.01-gba-mobile.zip release_output/
-
-      - name: Upload Build Artifact
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: pokemon-v0.01-gba-release
-          path: release_output/
+          name: pokemon-v0.01-apk
+          path: pokemon-v0.01-test.apk
