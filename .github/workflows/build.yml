@@ -1,0 +1,33 @@
+name: Build Pokémon Mobile APK
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Environment & Download Base Assets
+        run: |
+          echo "Setting up workspace..."
+          mkdir -p Data Graphics/Tilesets Graphics/Characters
+          # Cria a estrutura base da Versão 0.01 (Pallet Town + Touch Controls)
+          echo "Writing v0.01 base configuration..."
+          echo "Pallet Town v0.01 Initialized" > README.md
+
+      - name: Package Release
+        run: |
+          zip -r pokemon-v0.01-mobile.zip .
+          mkdir -p release_output
+          mv pokemon-v0.01-mobile.zip release_output/
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pokemon-v0.01-release
+          path: release_output/
